@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Evento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .info {
+            margin-bottom: 10px;
+        }
+        .evento {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detalhes dos Eventos</h1>
+    <div id="detalhesEvento"></div>
+
+    <script>
+        const eventos = JSON.parse(localStorage.getItem('eventos')) || [];
+
+        if (eventos.length > 0) {
+            const detalhesEvento = document.getElementById('detalhesEvento');
+
+            eventos.forEach((evento, index) => {
+                const eventoDiv = document.createElement('div');
+                eventoDiv.className = 'evento';
+                eventoDiv.innerHTML = `
+                    <div class="info"><strong>Nome do Associado:</strong> ${evento.nomeAssociado}</div>
+                    <div class="info"><strong>Placa do Veículo:</strong> ${evento.placaVeiculo}</div>
+                    <div class="info"><strong>Data de Cadastro do Evento:</strong> ${evento.dataCadastro}</div>
+                    <div class="info"><strong>Tipo de Evento:</strong> ${evento.tipoEvento}</div>
+                    <div class="info"><strong>Data de Entrega dos Documentos:</strong> ${evento.dataEntregaDocumentos}</div>
+                `;
+
+                if (evento.dataEntregaDocumentos) {
+                    const dataEntrega = new Date(evento.dataEntregaDocumentos);
+                    let prazoDias;
+
+                    switch (evento.tipoEvento) {
+                        case 'colisao':
+                            prazoDias = 7;
+                            break;
+                        case 'roubo':
+                        case 'furto':
+                            prazoDias = 45;
+                            break;
+                        case 'parabrisa':
+                            prazoDias = 2;
+                            break;
+                        default:
+                            prazoDias = 0;
+                    }
+
+                    const dataTermino = new Date(dataEntrega);
+                    dataTermino.setDate(dataTermino.getDate() + prazoDias);
+
+                    eventoDiv.innerHTML += `<div class="info"><strong>Data de Término:</strong> ${dataTermino.toLocaleDateString()}</div>`;
+                }
+
+                detalhesEvento.appendChild(eventoDiv);
+            });
+        } else {
+            document.getElementById('detalhesEvento').innerHTML = '<p>Nenhum evento encontrado.</p>';
+        }
+    </script>
+</body>
+</html>

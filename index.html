@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Eventos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, button {
+            margin-top: 5px;
+        }
+        #listaEventos {
+            margin-top: 20px;
+        }
+        .evento {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cadastro de Eventos</h1>
+    <form id="eventForm">
+        <label for="nomeAssociado">Nome do Associado:</label>
+        <input type="text" id="nomeAssociado" name="nomeAssociado" required>
+
+        <label for="placaVeiculo">Placa do Veículo:</label>
+        <input type="text" id="placaVeiculo" name="placaVeiculo" required>
+
+        <label for="dataCadastro">Data de Cadastro do Evento:</label>
+        <input type="date" id="dataCadastro" name="dataCadastro" required>
+
+        <label for="tipoEvento">Tipo de Evento:</label>
+        <select id="tipoEvento" name="tipoEvento" required>
+            <option value="colisao">Colisão</option>
+            <option value="roubo">Roubo</option>
+            <option value="furto">Furto</option>
+            <option value="parabrisa">Parabrisa</option>
+        </select>
+
+        <button type="button" onclick="adicionarEvento()">Cadastrar Evento</button>
+    </form>
+
+    <div id="listaEventos">
+        <h2>Eventos Cadastrados</h2>
+    </div>
+
+    <script>
+        let eventos = [];
+
+        function adicionarEvento() {
+            const nomeAssociado = document.getElementById('nomeAssociado').value;
+            const placaVeiculo = document.getElementById('placaVeiculo').value;
+            const dataCadastro = document.getElementById('dataCadastro').value;
+            const tipoEvento = document.getElementById('tipoEvento').value;
+
+            const evento = {
+                nomeAssociado,
+                placaVeiculo,
+                dataCadastro,
+                tipoEvento,
+                dataEntregaDocumentos: null
+            };
+
+            eventos.push(evento);
+            exibirEventos();
+            document.getElementById('eventForm').reset();
+        }
+
+        function exibirEventos() {
+            const listaEventos = document.getElementById('listaEventos');
+            listaEventos.innerHTML = '<h2>Eventos Cadastrados</h2>';
+
+            eventos.forEach((evento, index) => {
+                const eventoDiv = document.createElement('div');
+                eventoDiv.className = 'evento';
+                eventoDiv.innerHTML = `
+                    <p><strong>Nome do Associado:</strong> ${evento.nomeAssociado}</p>
+                    <p><strong>Placa do Veículo:</strong> ${evento.placaVeiculo}</p>
+                    <p><strong>Data de Cadastro:</strong> ${evento.dataCadastro}</p>
+                    <p><strong>Tipo de Evento:</strong> ${evento.tipoEvento}</p>
+                    <label for="dataEntregaDocumentos${index}">Data de Entrega dos Documentos:</label>
+                    <input type="date" id="dataEntregaDocumentos${index}">
+                    <button type="button" onclick="confirmarEntrega(${index})">Confirmar Entrega</button>
+                `;
+                listaEventos.appendChild(eventoDiv);
+            });
+        }
+
+        function confirmarEntrega(index) {
+            const dataEntregaDocumentos = document.getElementById(`dataEntregaDocumentos${index}`).value;
+
+            if (!dataEntregaDocumentos) {
+                alert('Por favor, insira a data de entrega dos documentos.');
+                return;
+            }
+
+            eventos[index].dataEntregaDocumentos = dataEntregaDocumentos;
+            localStorage.setItem('eventos', JSON.stringify(eventos));
+            window.location.href = 'detalhes.html';
+        }
+    </script>
+</body>
+</html>
