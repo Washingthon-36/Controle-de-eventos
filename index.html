@@ -3,110 +3,2019 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Eventos</title>
+    <meta name="description" content="Sistema de controle de estoque para almoxarifado de obra">
+    <meta name="theme-color" content="#2c3e50">
+    <title>Controle de Estoque - Almoxarifado</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
         }
-        label {
-            display: block;
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #9b59b6;
+            --surface: #ffffff;
+            --background: #f5f7fa;
+        }
+
+        body {
+            background-color: var(--background);
+            color: #333;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-radius: 0 0 10px 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            width: 400px;
             margin-top: 10px;
         }
-        input, select, button {
-            margin-top: 5px;
+
+        .search-bar input {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
         }
-        #listaEventos {
+
+        .search-bar button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: #2980b9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .card.blue i {
+            color: var(--secondary);
+        }
+
+        .card.orange i {
+            color: var(--warning);
+        }
+
+        .card.green i {
+            color: var(--success);
+        }
+
+        .card.purple i {
+            color: var(--info);
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+
+        .card p {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .panel-header h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-header h2 i {
+            color: var(--secondary);
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-add {
+            background: var(--success);
+        }
+
+        .btn-edit {
+            background: var(--warning);
+        }
+
+        .btn-delete {
+            background: var(--accent);
+        }
+
+        .btn-movement {
+            background: var(--info);
+        }
+
+        .btn-export {
+            background: #16a085;
+        }
+
+        .btn-back {
+            background: var(--info);
+        }
+        
+        .btn-home {
+            background: var(--dark);
+        }
+        
+        .btn-install {
+            background: #8e44ad;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-radius: 50px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            background: var(--surface);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--primary);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 500;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .actions button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .low-stock {
+            background-color: #fff8e1;
+            color: var(--warning);
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .critical-stock {
+            background-color: #ffebee;
+            color: var(--accent);
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .movement-in {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .movement-out {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--dark);
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 2px solid var(--secondary);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--accent);
+        }
+
+        .chart-container {
+            height: 300px;
             margin-top: 20px;
         }
-        .evento {
-            border: 1px solid #ccc;
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Offline Status */
+        .offline-status {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--accent);
+            color: white;
+            text-align: center;
             padding: 10px;
-            margin-bottom: 10px;
+            z-index: 1001;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .offline-status.show {
+            transform: translateY(0);
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        .splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash-logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .splash-text {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 80%;
+            max-width: 300px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(142, 68, 173, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(142, 68, 173, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .search-bar {
+                width: 100%;
+                margin-top: 15px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .actions {
+                flex-direction: column;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn-install {
+                bottom: 10px;
+                right: 10px;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Cadastro de Eventos</h1>
-    <form id="eventForm">
-        <label for="nomeAssociado">Nome do Associado:</label>
-        <input type="text" id="nomeAssociado" name="nomeAssociado" required>
-
-        <label for="placaVeiculo">Placa do Veículo:</label>
-        <input type="text" id="placaVeiculo" name="placaVeiculo" required>
-
-        <label for="dataCadastro">Data de Cadastro do Evento:</label>
-        <input type="date" id="dataCadastro" name="dataCadastro" required>
-
-        <label for="tipoEvento">Tipo de Evento:</label>
-        <select id="tipoEvento" name="tipoEvento" required>
-            <option value="colisao">Colisão</option>
-            <option value="roubo">Roubo</option>
-            <option value="furto">Furto</option>
-            <option value="parabrisa">Parabrisa</option>
-        </select>
-
-        <button type="button" onclick="adicionarEvento()">Cadastrar Evento</button>
-    </form>
-
-    <div id="listaEventos">
-        <h2>Eventos Cadastrados</h2>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">
+            <i class="fas fa-warehouse"></i>
+        </div>
+        <div class="splash-text">Carregando Sistema de Estoque</div>
+        <div class="progress-bar">
+            <div class="progress" id="splashProgress"></div>
+        </div>
     </div>
 
+    <!-- Offline Status Bar -->
+    <div class="offline-status" id="offlineStatus">
+        <i class="fas fa-wifi-slash"></i> Você está offline - Algumas funcionalidades podem estar limitadas
+    </div>
+
+    <!-- Install Button -->
+    <button class="btn btn-install" id="installButton" style="display: none;">
+        <i class="fas fa-download"></i> Instalar App
+    </button>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-warehouse"></i>
+                    <h1>Controle de Estoque - Almoxarifado</h1>
+                </div>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Buscar material...">
+                    <button id="searchBtn"><i class="fas fa-search"></i> Buscar</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="card blue">
+                <i class="fas fa-boxes"></i>
+                <h3 id="totalItems">0</h3>
+                <p>Materiais Cadastrados</p>
+            </div>
+            <div class="card orange">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3 id="lowStockItems">0</h3>
+                <p>Materiais com Estoque Baixo</p>
+            </div>
+            <div class="card green">
+                <i class="fas fa-arrow-down"></i>
+                <h3 id="movementsIn">0</h3>
+                <p>Entradas (30 dias)</p>
+            </div>
+            <div class="card purple">
+                <i class="fas fa-arrow-up"></i>
+                <h3 id="movementsOut">0</h3>
+                <p>Saídas (30 dias)</p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="materials">Gestão de Materiais</div>
+            <div class="tab" data-tab="movements">Movimentações</div>
+            <div class="tab" data-tab="history">Histórico</div>
+            <div class="tab" data-tab="reports">Relatórios</div>
+        </div>
+
+        <div class="main-content">
+            <!-- Tab Materiais -->
+            <div class="tab-content active" id="materials-tab">
+                <div class="navigation-buttons">
+                    <button class="btn btn-home" onclick="goToTab('materials')">
+                        <i class="fas fa-home"></i> Página Inicial
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-plus-circle"></i> Adicionar Material</h2>
+                        </div>
+                        <form id="materialForm">
+                            <div class="form-group">
+                                <label for="materialName">Nome do Material</label>
+                                <input type="text" id="materialName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="materialCode">Código</label>
+                                <input type="text" id="materialCode" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="materialQuantity">Quantidade Inicial</label>
+                                <input type="number" id="materialQuantity" class="form-control" min="0" value="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="materialUnit">Unidade de Medida</label>
+                                <select id="materialUnit" class="form-control" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="un">Unidade (un)</option>
+                                    <option value="kg">Quilograma (kg)</option>
+                                    <option value="m">Metro (m)</option>
+                                    <option value="m2">Metro Quadrado (m²)</option>
+                                    <option value="m3">Metro Cúbico (m³)</option>
+                                    <option value="lt">Litro (lt)</option>
+                                    <option value="cx">Caixa (cx)</option>
+                                    <option value="sc">Saco (sc)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="materialCategory">Categoria</label>
+                                <select id="materialCategory" class="form-control" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Materiais Básicos">Materiais Básicos</option>
+                                    <option value="Alvenaria">Alvenaria</option>
+                                    <option value="Hidráulica">Hidráulica</option>
+                                    <option value="Elétrica">Elétrica</option>
+                                    <option value="Acabamento">Acabamento</option>
+                                    <option value="Agregados">Agregados</option>
+                                    <option value="Ferramentas">Ferramentas</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="materialLocation">Local de Armazenamento</label>
+                                <input type="text" id="materialLocation" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="materialSupplier">Fornecedor</label>
+                                <input type="text" id="materialSupplier" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="materialMinStock">Estoque Mínimo</label>
+                                <input type="number" id="materialMinStock" class="form-control" min="0" required>
+                            </div>
+                            <button type="submit" class="btn btn-add"><i class="fas fa-plus"></i> Adicionar Material</button>
+                        </form>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-exchange-alt"></i> Movimentação Rápida</h2>
+                        </div>
+                        <form id="quickMovementForm">
+                            <div class="form-group">
+                                <label for="movementMaterial">Material</label>
+                                <select id="movementMaterial" class="form-control" required>
+                                    <option value="">Selecione um material...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="movementType">Tipo de Movimentação</label>
+                                <select id="movementType" class="form-control" required>
+                                    <option value="in">Entrada</option>
+                                    <option value="out">Saída</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="movementQuantity">Quantidade</label>
+                                <input type="number" id="movementQuantity" class="form-control" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="movementResponsible">Responsável</label>
+                                <input type="text" id="movementResponsible" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="movementReason">Motivo</label>
+                                <textarea id="movementReason" class="form-control" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-movement"><i class="fas fa-sync-alt"></i> Registrar Movimentação</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-box-open"></i> Materiais em Estoque</h2>
+                        <div>
+                            <button class="btn btn-export" onclick="exportMaterials()"><i class="fas fa-file-export"></i> Exportar</button>
+                            <button class="btn" onclick="printMaterials()"><i class="fas fa-print"></i> Imprimir</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Material</th>
+                                    <th>Quantidade</th>
+                                    <th>Estoque Mín.</th>
+                                    <th>Local</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Os dados serão preenchidos por JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Movimentações -->
+            <div class="tab-content" id="movements-tab">
+                <div class="navigation-buttons">
+                    <button class="btn btn-back" onclick="goToPreviousTab()">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </button>
+                    <button class="btn btn-home" onclick="goToTab('materials')">
+                        <i class="fas fa-home"></i> Página Inicial
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-tasks"></i> Registro de Movimentações</h2>
+                    </div>
+                    <form id="movementForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullMovementMaterial">Material</label>
+                                <select id="fullMovementMaterial" class="form-control" required>
+                                    <option value="">Selecione um material...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullMovementType">Tipo de Movimentação</label>
+                                <select id="fullMovementType" class="form-control" required>
+                                    <option value="in">Entrada (Adicionar ao estoque)</option>
+                                    <option value="out">Saída (Remover do estoque)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullMovementQuantity">Quantidade</label>
+                                <input type="number" id="fullMovementQuantity" class="form-control" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullMovementDate">Data</label>
+                                <input type="date" id="fullMovementDate" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullMovementResponsible">Responsável</label>
+                                <input type="text" id="fullMovementResponsible" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullMovementProject">Projeto/Obra</label>
+                                <input type="text" id="fullMovementProject" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fullMovementReason">Motivo/Descrição</label>
+                            <textarea id="fullMovementReason" class="form-control" rows="3" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-movement"><i class="fas fa-save"></i> Registrar Movimentação</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab Histórico -->
+            <div class="tab-content" id="history-tab">
+                <div class="navigation-buttons">
+                    <button class="btn btn-back" onclick="goToPreviousTab()">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </button>
+                    <button class="btn btn-home" onclick="goToTab('materials')">
+                        <i class="fas fa-home"></i> Página Inicial
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-history"></i> Histórico de Movimentações</h2>
+                        <div>
+                            <select id="historyFilter" class="form-control">
+                                <option value="all">Todas movimentações</option>
+                                <option value="in">Apenas entradas</option>
+                                <option value="out">Apenas saídas</option>
+                                <option value="30">Últimos 30 dias</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Material</th>
+                                    <th>Tipo</th>
+                                    <th>Quantidade</th>
+                                    <th>Responsável</th>
+                                    <th>Projeto</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Os dados serão preenchidos por JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Relatórios -->
+            <div class="tab-content" id="reports-tab">
+                <div class="navigation-buttons">
+                    <button class="btn btn-back" onclick="goToPreviousTab()">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </button>
+                    <button class="btn btn-home" onclick="goToTab('materials')">
+                        <i class="fas fa-home"></i> Página Inicial
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-chart-bar"></i> Relatórios de Estoque</h2>
+                    </div>
+                    <div class="form-row">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-list"></i> Estoque Crítico</h3>
+                            </div>
+                            <div class="table-container">
+                                <table id="criticalStockTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Material</th>
+                                            <th>Quantidade</th>
+                                            <th>Estoque Mín.</th>
+                                            <th>Deficit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dados preenchidos por JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-chart-pie"></i> Resumo por Categoria</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-chart-line"></i> Movimentação Mensal</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="movementChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-file-alt"></i> Relatório Completo</h3>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-export" onclick="exportFullReport()"><i class="fas fa-file-excel"></i> Exportar para Excel</button>
+                            <button class="btn" onclick="printReport()"><i class="fas fa-print"></i> Imprimir Relatório</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Edição de Material -->
+    <div class="modal" id="editMaterialModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Editar Material</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="editMaterialForm">
+                <input type="hidden" id="editMaterialId">
+                <div class="form-group">
+                    <label for="editMaterialName">Nome do Material</label>
+                    <input type="text" id="editMaterialName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editMaterialCode">Código</label>
+                    <input type="text" id="editMaterialCode" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="editMaterialQuantity">Quantidade</label>
+                    <input type="number" id="editMaterialQuantity" class="form-control" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="editMaterialUnit">Unidade de Medida</label>
+                    <select id="editMaterialUnit" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="un">Unidade (un)</option>
+                        <option value="kg">Quilograma (kg)</option>
+                        <option value="m">Metro (m)</option>
+                        <option value="m2">Metro Quadrado (m²)</option>
+                        <option value="m3">Metro Cúbico (m³)</option>
+                        <option value="lt">Litro (lt)</option>
+                        <option value="cx">Caixa (cx)</option>
+                        <option value="sc">Saco (sc)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editMaterialCategory">Categoria</label>
+                    <select id="editMaterialCategory" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="Materiais Básicos">Materiais Básicos</option>
+                        <option value="Alvenaria">Alvenaria</option>
+                        <option value="Hidráulica">Hidráulica</option>
+                        <option value="Elétrica">Elétrica</option>
+                        <option value="Acabamento">Acabamento</option>
+                        <option value="Agregados">Agregados</option>
+                        <option value="Ferramentas">Ferramentas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editMaterialLocation">Local de Armazenamento</label>
+                    <input type="text" id="editMaterialLocation" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="editMaterialSupplier">Fornecedor</label>
+                    <input type="text" id="editMaterialSupplier" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="editMaterialMinStock">Estoque Mínimo</label>
+                    <input type="number" id="editMaterialMinStock" class="form-control" min="0" required>
+                </div>
+                <button type="submit" class="btn btn-add"><i class="fas fa-save"></i> Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Sistema de Controle de Estoque - Almoxarifado de Obra - criado por Washingthon Euds &copy; 2025 | Entradas e Saídas</p>
+        </div>
+    </footer>
+
     <script>
-        let eventos = [];
-
-        function adicionarEvento() {
-            const nomeAssociado = document.getElementById('nomeAssociado').value;
-            const placaVeiculo = document.getElementById('placaVeiculo').value;
-            const dataCadastro = document.getElementById('dataCadastro').value;
-            const tipoEvento = document.getElementById('tipoEvento').value;
-
-            const evento = {
-                nomeAssociado,
-                placaVeiculo,
-                dataCadastro,
-                tipoEvento,
-                dataEntregaDocumentos: null
-            };
-
-            eventos.push(evento);
-            exibirEventos();
-            document.getElementById('eventForm').reset();
-        }
-
-        function exibirEventos() {
-            const listaEventos = document.getElementById('listaEventos');
-            listaEventos.innerHTML = '<h2>Eventos Cadastrados</h2>';
-
-            eventos.forEach((evento, index) => {
-                const eventoDiv = document.createElement('div');
-                eventoDiv.className = 'evento';
-                eventoDiv.innerHTML = `
-                    <p><strong>Nome do Associado:</strong> ${evento.nomeAssociado}</p>
-                    <p><strong>Placa do Veículo:</strong> ${evento.placaVeiculo}</p>
-                    <p><strong>Data de Cadastro:</strong> ${evento.dataCadastro}</p>
-                    <p><strong>Tipo de Evento:</strong> ${evento.tipoEvento}</p>
-                    <label for="dataEntregaDocumentos${index}">Data de Entrega dos Documentos:</label>
-                    <input type="date" id="dataEntregaDocumentos${index}">
-                    <button type="button" onclick="confirmarEntrega(${index})">Confirmar Entrega</button>
-                `;
-                listaEventos.appendChild(eventoDiv);
+        // ================== PWA Functionality ==================
+        // Verificar suporte a service workers
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado com sucesso:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Falha ao registrar Service Worker:', error);
+                    });
             });
         }
 
-        function confirmarEntrega(index) {
-            const dataEntregaDocumentos = document.getElementById(`dataEntregaDocumentos${index}`).value;
+        // Verificar conexão
+        window.addEventListener('online', () => {
+            document.getElementById('offlineStatus').classList.remove('show');
+        });
 
-            if (!dataEntregaDocumentos) {
-                alert('Por favor, insira a data de entrega dos documentos.');
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineStatus').classList.add('show');
+        });
+
+        // Verificar se o app pode ser instalado
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar o botão de instalação
+            installButton.style.display = 'flex';
+            
+            installButton.addEventListener('click', () => {
+                installButton.style.display = 'none';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou instalar');
+                    } else {
+                        console.log('Usuário recusou instalação');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+
+        // ================== App Functionality ==================
+        // Dados de exemplo para demonstração
+        const sampleMaterials = [
+            { id: 1, name: "Cimento CP II", code: "CMT001", quantity: 150, unit: "sc", location: "Setor A", minStock: 100, supplier: "Votorantim", category: "Materiais Básicos" },
+            { id: 2, name: "Tijolo Baiano", code: "TJB002", quantity: 5000, unit: "un", location: "Setor C", minStock: 3000, supplier: "Cerâmica São Paulo", category: "Alvenaria" },
+            { id: 3, name: "Areia Média", code: "ARE003", quantity: 8, unit: "m3", location: "Setor B", minStock: 15, supplier: "Pedreira Jundiaí", category: "Agregados" },
+            { id: 4, name: "Brita 1", code: "BRT004", quantity: 12, unit: "m3", location: "Setor B", minStock: 20, supplier: "Pedreira Jundiaí", category: "Agregados" },
+            { id: 5, name: "Tubo PVC 100mm", code: "PVC005", quantity: 35, unit: "un", location: "Setor D", minStock: 25, supplier: "Tigre", category: "Hidráulica" },
+            { id: 6, name: "Tinta Acrílica Branca", code: "TNT006", quantity: 5, unit: "lt", location: "Setor E", minStock: 10, supplier: "Suvinil", category: "Acabamento" }
+        ];
+
+        const sampleMovements = [
+            { id: 1, materialId: 1, type: "in", quantity: 50, date: "2023-10-15", responsible: "João Silva", project: "Edifício Sol Nascente", reason: "Reposição de estoque" },
+            { id: 2, materialId: 3, type: "out", quantity: 2, date: "2023-10-16", responsible: "Maria Oliveira", project: "Residencial Green Valley", reason: "Preparação de concreto" },
+            { id: 3, materialId: 5, type: "in", quantity: 10, date: "2023-10-17", responsible: "Carlos Mendes", project: "", reason: "Aumento de estoque" },
+            { id: 4, materialId: 2, type: "out", quantity: 500, date: "2023-10-18", responsible: "Pedro Rocha", project: "Edifício Sol Nascente", reason: "Alvenaria - 3º andar" }
+        ];
+
+        // Referências do DOM
+        const materialForm = document.getElementById('materialForm');
+        const quickMovementForm = document.getElementById('quickMovementForm');
+        const movementForm = document.getElementById('movementForm');
+        const editMaterialForm = document.getElementById('editMaterialForm');
+        const inventoryTable = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
+        const historyTable = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
+        const criticalStockTable = document.getElementById('criticalStockTable').getElementsByTagName('tbody')[0];
+        const movementMaterialSelect = document.getElementById('movementMaterial');
+        const fullMovementMaterialSelect = document.getElementById('fullMovementMaterial');
+        const totalItemsElement = document.getElementById('totalItems');
+        const lowStockItemsElement = document.getElementById('lowStockItems');
+        const movementsInElement = document.getElementById('movementsIn');
+        const movementsOutElement = document.getElementById('movementsOut');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const editMaterialModal = document.getElementById('editMaterialModal');
+        const closeModal = document.querySelector('.close-modal');
+        const categoryChartCtx = document.getElementById('categoryChart').getContext('2d');
+        const movementChartCtx = document.getElementById('movementChart').getContext('2d');
+        const splashScreen = document.getElementById('splashScreen');
+        const splashProgress = document.getElementById('splashProgress');
+
+        // Carregar dados do localStorage ou usar os de exemplo
+        let materials = JSON.parse(localStorage.getItem('materials')) || sampleMaterials;
+        let movements = JSON.parse(localStorage.getItem('movements')) || sampleMovements;
+
+        // Variáveis para controle de navegação
+        let currentTab = 'materials';
+        let previousTab = null;
+
+        // Simular progresso de carregamento
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += 5;
+            splashProgress.style.width = `${progress}%`;
+            
+            if (progress >= 100) {
+                clearInterval(loadingInterval);
+                setTimeout(() => {
+                    splashScreen.classList.add('hidden');
+                }, 500);
+            }
+        }, 100);
+
+        // Inicializar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar data atual no campo de data
+            document.getElementById('fullMovementDate').valueAsDate = new Date();
+            
+            renderInventoryTable();
+            renderMovementHistory();
+            updateDashboard();
+            populateMaterialSelects();
+            renderCriticalStock();
+            renderCategoryChart();
+            renderMovementChart();
+            
+            // Configurar tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    previousTab = currentTab;
+                    currentTab = tab.getAttribute('data-tab');
+                    
+                    // Remover classe active de todas as tabs e conteúdos
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Adicionar classe active à tab e conteúdo selecionados
+                    tab.classList.add('active');
+                    document.getElementById(`${currentTab}-tab`).classList.add('active');
+                    
+                    // Se for a tab de relatórios, atualizar os gráficos
+                    if (currentTab === 'reports') {
+                        renderCriticalStock();
+                        renderCategoryChart();
+                        renderMovementChart();
+                    }
+                });
+            });
+            
+            // Fechar modal
+            closeModal.addEventListener('click', () => {
+                editMaterialModal.style.display = 'none';
+            });
+            
+            // Fechar modal ao clicar fora
+            window.addEventListener('click', (e) => {
+                if (e.target === editMaterialModal) {
+                    editMaterialModal.style.display = 'none';
+                }
+            });
+        });
+
+        // Função para ir para uma tab específica
+        function goToTab(tabId) {
+            previousTab = currentTab;
+            currentTab = tabId;
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            
+            if (tabId === 'reports') {
+                renderCriticalStock();
+                renderCategoryChart();
+                renderMovementChart();
+            }
+        }
+        
+        // Função para voltar para a tab anterior
+        function goToPreviousTab() {
+            if (previousTab) {
+                goToTab(previousTab);
+            }
+        }
+
+        // Atualizar dashboard
+        function updateDashboard() {
+            totalItemsElement.textContent = materials.length;
+            
+            const lowStock = materials.filter(material => material.quantity < material.minStock).length;
+            lowStockItemsElement.textContent = lowStock;
+            
+            // Calcular movimentações dos últimos 30 dias
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const movementsIn = movements.filter(m => 
+                m.type === 'in' && new Date(m.date) >= thirtyDaysAgo
+            ).length;
+            
+            const movementsOut = movements.filter(m => 
+                m.type === 'out' && new Date(m.date) >= thirtyDaysAgo
+            ).length;
+            
+            movementsInElement.textContent = movementsIn;
+            movementsOutElement.textContent = movementsOut;
+        }
+
+        // Popular selects de materiais
+        function populateMaterialSelects() {
+            movementMaterialSelect.innerHTML = '<option value="">Selecione um material...</option>';
+            fullMovementMaterialSelect.innerHTML = '<option value="">Selecione um material...</option>';
+            
+            materials.forEach(material => {
+                const option = document.createElement('option');
+                option.value = material.id;
+                option.textContent = `${material.code} - ${material.name}`;
+                
+                movementMaterialSelect.appendChild(option.cloneNode(true));
+                fullMovementMaterialSelect.appendChild(option);
+            });
+        }
+
+        // Renderizar tabela de estoque
+        function renderInventoryTable() {
+            inventoryTable.innerHTML = '';
+            
+            materials.forEach(material => {
+                const row = inventoryTable.insertRow();
+                
+                // Determinar status do estoque
+                let statusClass = '';
+                let statusText = '';
+                
+                if (material.quantity === 0) {
+                    statusClass = 'critical-stock';
+                    statusText = 'ESGOTADO';
+                } else if (material.quantity < material.minStock) {
+                    statusClass = 'low-stock';
+                    statusText = 'ESTOQUE BAIXO';
+                } else {
+                    statusText = 'NORMAL';
+                }
+                
+                row.innerHTML = `
+                    <td>${material.code}</td>
+                    <td>${material.name}</td>
+                    <td>${material.quantity} ${material.unit}</td>
+                    <td>${material.minStock} ${material.unit}</td>
+                    <td>${material.location}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td class="actions">
+                        <button class="btn btn-movement" onclick="showMovementDialog(${material.id})">
+                            <i class="fas fa-exchange-alt"></i> Mov.
+                        </button>
+                        <button class="btn btn-edit" onclick="openEditModal(${material.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteMaterial(${material.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+            
+            // Salvar no localStorage
+            localStorage.setItem('materials', JSON.stringify(materials));
+            updateDashboard();
+        }
+
+        // Renderizar histórico de movimentações
+        function renderMovementHistory() {
+            historyTable.innerHTML = '';
+            
+            const filterValue = document.getElementById('historyFilter').value;
+            let filteredMovements = [...movements];
+            
+            if (filterValue === 'in') {
+                filteredMovements = movements.filter(m => m.type === 'in');
+            } else if (filterValue === 'out') {
+                filteredMovements = movements.filter(m => m.type === 'out');
+            } else if (filterValue === '30') {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                filteredMovements = movements.filter(m => new Date(m.date) >= thirtyDaysAgo);
+            }
+            
+            // Ordenar movimentações por data (mais recente primeiro)
+            const sortedMovements = filteredMovements.sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            );
+            
+            sortedMovements.forEach(movement => {
+                const row = historyTable.insertRow();
+                const material = materials.find(m => m.id === movement.materialId);
+                
+                if (!material) return;
+                
+                row.innerHTML = `
+                    <td>${new Date(movement.date).toLocaleDateString('pt-BR')}</td>
+                    <td>${material.name}</td>
+                    <td>
+                        <span class="${movement.type === 'in' ? 'movement-in' : 'movement-out'}">
+                            ${movement.type === 'in' ? 'ENTRADA' : 'SAÍDA'}
+                        </span>
+                    </td>
+                    <td>${movement.quantity} ${material.unit}</td>
+                    <td>${movement.responsible}</td>
+                    <td>${movement.project || '-'}</td>
+                    <td>${movement.reason}</td>
+                `;
+            });
+            
+            // Salvar no localStorage
+            localStorage.setItem('movements', JSON.stringify(movements));
+            updateDashboard();
+        }
+
+        // Renderizar estoque crítico
+        function renderCriticalStock() {
+            criticalStockTable.innerHTML = '';
+            
+            const criticalMaterials = materials.filter(material => 
+                material.quantity < material.minStock
+            );
+            
+            criticalMaterials.forEach(material => {
+                const row = criticalStockTable.insertRow();
+                const deficit = material.minStock - material.quantity;
+                
+                row.innerHTML = `
+                    <td>${material.name}</td>
+                    <td>${material.quantity} ${material.unit}</td>
+                    <td>${material.minStock} ${material.unit}</td>
+                    <td>${deficit} ${material.unit}</td>
+                `;
+            });
+        }
+
+        // Renderizar gráfico por categoria
+        function renderCategoryChart() {
+            // Agrupar materiais por categoria
+            const categories = {};
+            materials.forEach(material => {
+                if (!categories[material.category]) {
+                    categories[material.category] = 0;
+                }
+                categories[material.category]++;
+            });
+            
+            const labels = Object.keys(categories);
+            const data = Object.values(categories);
+            
+            // Destruir gráfico anterior se existir
+            if (window.categoryChart) {
+                window.categoryChart.destroy();
+            }
+            
+            window.categoryChart = new Chart(categoryChartCtx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#3498db',
+                            '#2ecc71',
+                            '#e74c3c',
+                            '#f39c12',
+                            '#9b59b6',
+                            '#1abc9c',
+                            '#d35400'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Materiais por Categoria'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Renderizar gráfico de movimentação
+        function renderMovementChart() {
+            // Agrupar movimentações por mês
+            const monthlyData = {};
+            
+            movements.forEach(movement => {
+                const date = new Date(movement.date);
+                const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
+                
+                if (!monthlyData[monthYear]) {
+                    monthlyData[monthYear] = { in: 0, out: 0 };
+                }
+                
+                if (movement.type === 'in') {
+                    monthlyData[monthYear].in += movement.quantity;
+                } else {
+                    monthlyData[monthYear].out += movement.quantity;
+                }
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            const inData = labels.map(label => monthlyData[label].in);
+            const outData = labels.map(label => monthlyData[label].out);
+            
+            // Destruir gráfico anterior se existir
+            if (window.movementChart) {
+                window.movementChart.destroy();
+            }
+            
+            window.movementChart = new Chart(movementChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Entradas',
+                            data: inData,
+                            backgroundColor: '#27ae60'
+                        },
+                        {
+                            label: 'Saídas',
+                            data: outData,
+                            backgroundColor: '#e74c3c'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Movimentação Mensal de Materiais'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Adicionar novo material
+        materialForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newMaterial = {
+                id: Date.now(),
+                name: document.getElementById('materialName').value,
+                code: document.getElementById('materialCode').value || 'SEM COD',
+                quantity: parseInt(document.getElementById('materialQuantity').value) || 0,
+                unit: document.getElementById('materialUnit').value,
+                category: document.getElementById('materialCategory').value,
+                location: document.getElementById('materialLocation').value || 'Não definido',
+                minStock: parseInt(document.getElementById('materialMinStock').value),
+                supplier: document.getElementById('materialSupplier').value || 'Não definido'
+            };
+            
+            materials.push(newMaterial);
+            renderInventoryTable();
+            populateMaterialSelects();
+            materialForm.reset();
+            
+            alert('Material adicionado com sucesso!');
+        });
+
+        // Registrar movimentação rápida
+        quickMovementForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const materialId = parseInt(movementMaterialSelect.value);
+            const type = document.getElementById('movementType').value;
+            const quantity = parseInt(document.getElementById('movementQuantity').value);
+            const responsible = document.getElementById('movementResponsible').value;
+            const reason = document.getElementById('movementReason').value;
+            
+            if (!materialId) {
+                alert('Selecione um material!');
                 return;
             }
+            
+            const material = materials.find(m => m.id === materialId);
+            
+            if (!material) {
+                alert('Material não encontrado!');
+                return;
+            }
+            
+            // Atualizar quantidade
+            if (type === 'in') {
+                material.quantity += quantity;
+            } else {
+                if (material.quantity < quantity) {
+                    alert('Quantidade em estoque insuficiente!');
+                    return;
+                }
+                material.quantity -= quantity;
+            }
+            
+            // Registrar movimentação
+            const newMovement = {
+                id: Date.now(),
+                materialId: materialId,
+                type: type,
+                quantity: quantity,
+                date: new Date().toISOString().split('T')[0],
+                responsible: responsible,
+                project: '',
+                reason: reason || (type === 'in' ? 'Entrada de material' : 'Saída de material')
+            };
+            
+            movements.push(newMovement);
+            
+            renderInventoryTable();
+            renderMovementHistory();
+            quickMovementForm.reset();
+            
+            alert(`Movimentação registrada com sucesso! Novo estoque: ${material.quantity} ${material.unit}`);
+        });
 
-            eventos[index].dataEntregaDocumentos = dataEntregaDocumentos;
-            localStorage.setItem('eventos', JSON.stringify(eventos));
-            window.location.href = 'detalhes.html';
+        // Registrar movimentação completa
+        movementForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const materialId = parseInt(fullMovementMaterialSelect.value);
+            const type = document.getElementById('fullMovementType').value;
+            const quantity = parseInt(document.getElementById('fullMovementQuantity').value);
+            const date = document.getElementById('fullMovementDate').value;
+            const responsible = document.getElementById('fullMovementResponsible').value;
+            const project = document.getElementById('fullMovementProject').value;
+            const reason = document.getElementById('fullMovementReason').value;
+            
+            if (!materialId) {
+                alert('Selecione um material!');
+                return;
+            }
+            
+            const material = materials.find(m => m.id === materialId);
+            
+            if (!material) {
+                alert('Material não encontrado!');
+                return;
+            }
+            
+            // Atualizar quantidade
+            if (type === 'in') {
+                material.quantity += quantity;
+            } else {
+                if (material.quantity < quantity) {
+                    alert('Quantidade em estoque insuficiente!');
+                    return;
+                }
+                material.quantity -= quantity;
+            }
+            
+            // Registrar movimentação
+            const newMovement = {
+                id: Date.now(),
+                materialId: materialId,
+                type: type,
+                quantity: quantity,
+                date: date,
+                responsible: responsible,
+                project: project,
+                reason: reason
+            };
+            
+            movements.push(newMovement);
+            
+            renderInventoryTable();
+            renderMovementHistory();
+            movementForm.reset();
+            document.getElementById('fullMovementDate').valueAsDate = new Date();
+            
+            alert(`Movimentação registrada com sucesso! Novo estoque: ${material.quantity} ${material.unit}`);
+        });
+
+        // Abrir modal de edição
+        function openEditModal(id) {
+            const material = materials.find(m => m.id === id);
+            if (material) {
+                document.getElementById('editMaterialId').value = material.id;
+                document.getElementById('editMaterialName').value = material.name;
+                document.getElementById('editMaterialCode').value = material.code;
+                document.getElementById('editMaterialQuantity').value = material.quantity;
+                document.getElementById('editMaterialUnit').value = material.unit;
+                document.getElementById('editMaterialCategory').value = material.category;
+                document.getElementById('editMaterialLocation').value = material.location;
+                document.getElementById('editMaterialSupplier').value = material.supplier;
+                document.getElementById('editMaterialMinStock').value = material.minStock;
+                
+                editMaterialModal.style.display = 'flex';
+            }
         }
+
+        // Editar material
+        editMaterialForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('editMaterialId').value);
+            const materialIndex = materials.findIndex(m => m.id === id);
+            
+            if (materialIndex !== -1) {
+                materials[materialIndex] = {
+                    ...materials[materialIndex],
+                    name: document.getElementById('editMaterialName').value,
+                    code: document.getElementById('editMaterialCode').value,
+                    quantity: parseInt(document.getElementById('editMaterialQuantity').value),
+                    unit: document.getElementById('editMaterialUnit').value,
+                    category: document.getElementById('editMaterialCategory').value,
+                    location: document.getElementById('editMaterialLocation').value,
+                    supplier: document.getElementById('editMaterialSupplier').value,
+                    minStock: parseInt(document.getElementById('editMaterialMinStock').value)
+                };
+                
+                renderInventoryTable();
+                populateMaterialSelects();
+                editMaterialModal.style.display = 'none';
+                alert('Material atualizado com sucesso!');
+            }
+        });
+
+        // Excluir material
+        function deleteMaterial(id) {
+            if (confirm('Tem certeza que deseja excluir este material? Esta ação não pode ser desfeita.')) {
+                materials = materials.filter(material => material.id !== id);
+                
+                // Remover movimentações relacionadas a este material
+                movements = movements.filter(movement => movement.materialId !== id);
+                
+                renderInventoryTable();
+                renderMovementHistory();
+                populateMaterialSelects();
+            }
+        }
+
+        // Função para mostrar diálogo de movimentação
+        function showMovementDialog(materialId) {
+            const material = materials.find(m => m.id === materialId);
+            if (!material) return;
+            
+            fullMovementMaterialSelect.value = materialId;
+            
+            // Mudar para a tab de movimentações
+            goToTab('movements');
+            
+            // Rolar até o formulário
+            document.getElementById('movementForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Função de busca
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                renderInventoryTable();
+                return;
+            }
+            
+            const filteredMaterials = materials.filter(material => 
+                material.name.toLowerCase().includes(searchTerm) || 
+                material.code.toLowerCase().includes(searchTerm)
+            );
+            
+            // Renderizar tabela com resultados filtrados
+            inventoryTable.innerHTML = '';
+            filteredMaterials.forEach(material => {
+                const row = inventoryTable.insertRow();
+                
+                let statusClass = '';
+                let statusText = '';
+                
+                if (material.quantity === 0) {
+                    statusClass = 'critical-stock';
+                    statusText = 'ESGOTADO';
+                } else if (material.quantity < material.minStock) {
+                    statusClass = 'low-stock';
+                    statusText = 'ESTOQUE BAIXO';
+                } else {
+                    statusText = 'NORMAL';
+                }
+                
+                row.innerHTML = `
+                    <td>${material.code}</td>
+                    <td>${material.name}</td>
+                    <td>${material.quantity} ${material.unit}</td>
+                    <td>${material.minStock} ${material.unit}</td>
+                    <td>${material.location}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td class="actions">
+                        <button class="btn btn-movement" onclick="showMovementDialog(${material.id})">
+                            <i class="fas fa-exchange-alt"></i> Mov.
+                        </button>
+                        <button class="btn btn-edit" onclick="openEditModal(${material.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteMaterial(${material.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+        });
+
+        // Filtro de histórico
+        document.getElementById('historyFilter').addEventListener('change', function() {
+            renderMovementHistory();
+        });
+
+        // Exportar materiais para CSV
+        function exportMaterials() {
+            let csv = 'Código,Nome,Quantidade,Unidade,Estoque Mínimo,Local,Fornecedor,Status\n';
+            
+            materials.forEach(material => {
+                let status;
+                if (material.quantity === 0) {
+                    status = 'ESGOTADO';
+                } else if (material.quantity < material.minStock) {
+                    status = 'ESTOQUE BAIXO';
+                } else {
+                    status = 'NORMAL';
+                }
+                
+                csv += `"${material.code}","${material.name}",${material.quantity},"${material.unit}",${material.minStock},"${material.location}","${material.supplier}","${status}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'estoque_materiais.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Imprimir lista de materiais
+        function printMaterials() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Relatório de Estoque</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        h1 { text-align: center; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Relatório de Estoque</h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Material</th>
+                                <th>Quantidade</th>
+                                <th>Unidade</th>
+                                <th>Estoque Mínimo</th>
+                                <th>Local</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${materials.map(material => {
+                                let status;
+                                if (material.quantity === 0) {
+                                    status = 'ESGOTADO';
+                                } else if (material.quantity < material.minStock) {
+                                    status = 'ESTOQUE BAIXO';
+                                } else {
+                                    status = 'NORMAL';
+                                }
+                                
+                                return `
+                                    <tr>
+                                        <td>${material.code}</td>
+                                        <td>${material.name}</td>
+                                        <td>${material.quantity}</td>
+                                        <td>${material.unit}</td>
+                                        <td>${material.minStock}</td>
+                                        <td>${material.location}</td>
+                                        <td>${status}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <p>Emitido em: ${new Date().toLocaleString('pt-BR')}</p>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Exportar relatório completo
+        function exportFullReport() {
+            let csv = 'Data,Material,Tipo,Quantidade,Unidade,Responsável,Projeto,Motivo\n';
+            
+            movements.forEach(movement => {
+                const material = materials.find(m => m.id === movement.materialId);
+                if (!material) return;
+                
+                const type = movement.type === 'in' ? 'Entrada' : 'Saída';
+                
+                csv += `"${new Date(movement.date).toLocaleDateString('pt-BR')}","${material.name}","${type}",${movement.quantity},"${material.unit}","${movement.responsible}","${movement.project || ''}","${movement.reason}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'relatorio_movimentacoes.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Imprimir relatório
+        function printReport() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Relatório Completo de Estoque</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        h1 { text-align: center; }
+                        h2 { margin-top: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Relatório Completo de Estoque</h1>
+                    
+                    <h2>Materiais em Estoque</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Material</th>
+                                <th>Quantidade</th>
+                                <th>Unidade</th>
+                                <th>Estoque Mínimo</th>
+                                <th>Local</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${materials.map(material => {
+                                let status;
+                                if (material.quantity === 0) {
+                                    status = 'ESGOTADO';
+                                } else if (material.quantity < material.minStock) {
+                                    status = 'ESTOQUE BAIXO';
+                                } else {
+                                    status = 'NORMAL';
+                                }
+                                
+                                return `
+                                    <tr>
+                                        <td>${material.code}</td>
+                                        <td>${material.name}</td>
+                                        <td>${material.quantity}</td>
+                                        <td>${material.unit}</td>
+                                        <td>${material.minStock}</td>
+                                        <td>${material.location}</td>
+                                        <td>${status}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    
+                    <h2>Movimentações Recentes</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Material</th>
+                                <th>Tipo</th>
+                                <th>Quantidade</th>
+                                <th>Responsável</th>
+                                <th>Projeto</th>
+                                <th>Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${movements.slice(0, 20).map(movement => {
+                                const material = materials.find(m => m.id === movement.materialId);
+                                if (!material) return '';
+                                
+                                return `
+                                    <tr>
+                                        <td>${new Date(movement.date).toLocaleDateString('pt-BR')}</td>
+                                        <td>${material.name}</td>
+                                        <td>${movement.type === 'in' ? 'ENTRADA' : 'SAÍDA'}</td>
+                                        <td>${movement.quantity} ${material.unit}</td>
+                                        <td>${movement.responsible}</td>
+                                        <td>${movement.project || '-'}</td>
+                                        <td>${movement.reason}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    
+                    <p>Emitido em: ${new Date().toLocaleString('pt-BR')}</p>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+    
+    <script>
+        // Manifest para PWA
+        const manifest = {
+            "name": "Controle de Estoque - Almoxarifado",
+            "short_name": "Almoxarifado",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#2c3e50",
+            "theme_color": "#3498db",
+            "description": "Sistema de controle de estoque para almoxarifado de obra.",
+            "icons": [
+                {
+                    "src": "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg",
+                    "sizes": "192x192",
+                    "type": "image/svg"
+                },
+                {
+                    "src": "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg",
+                    "sizes": "512x512",
+                    "type": "image/svg"
+                }
+            ]
+        };
+
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(blob);
+        document.querySelector('link[rel="manifest"]').href = manifestURL;
     </script>
 </body>
 </html>
